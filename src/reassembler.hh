@@ -3,10 +3,23 @@
 #include "byte_stream.hh"
 
 #include <string>
+#include <set>
 
 class Reassembler
 {
+protected:
+  std::set<std::pair<uint64_t, std::string>> cache;
+  bool _rcv_last;
+  uint64_t _bytes_stored, _last_byte_num;
+
+  bool merge_two(std::pair<uint64_t, std::string>& a, std::pair<uint64_t, std::string>& b);
+  void merge(std::pair<uint64_t, std::string>& cur);
+  void cut_off(std::pair<uint64_t, std::string>& cur, const Writer& output);
+  bool is_out_of_avail_cap(std::pair<uint64_t, std::string>& cur, const Writer& output);
+
 public:
+
+  Reassembler();
   /*
    * Insert a new substring to be reassembled into a ByteStream.
    *   `first_index`: the index of the first byte of the substring
