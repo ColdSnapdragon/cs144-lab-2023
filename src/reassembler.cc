@@ -83,12 +83,12 @@ void Reassembler::cut_off(std::pair<uint64_t, std::string>& cur, const Writer& o
   uint64_t tail = cur.first + cur.second.size();
   if (cur.first >= left_border && tail <= right_border)
     return;
-  uint64_t l = std::max(left_border - cur.first, uint64_t(0)), len = std::min(tail, right_border - 1) - l + 1;
+  uint64_t l = left_border >= cur.first ? left_border - cur.first : uint64_t(0);
   if (l >= cur.second.size())
     cur.second = "";
   else {
     cur.first = cur.first + l;
-    cur.second = cur.second.substr(l, len);
+    cur.second = cur.second.substr(l, std::min(tail, right_border) - cur.first);
   }
 }
 
