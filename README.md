@@ -1,4 +1,4 @@
-Stanford CS 144 Networking Lab
+Fork from [Stanford CS 144 Networking Lab](https://github.com/CS144/minnow)
 ==============================
 
 These labs are open to the public under the (friendly) request that to
@@ -18,3 +18,11 @@ To run speed benchmarks: `cmake --build build --target speed`
 To run clang-tidy (which suggests improvements): `cmake --build build --target tidy`
 
 To format code: `cmake --build build --target format`
+
+
+My Learning Process
+==============================
+
+- Finished lab 0
+- Finished lab 1
+- Finished lab 2
