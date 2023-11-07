@@ -1,3 +1,11 @@
+My Learning Process for CS 144 Lab 2023 Spring
+==============================
+
+- Finished lab 0
+- Finished lab 1
+- Finished lab 2
+- Finished lab 3
+
 Fork from [Stanford CS 144 Networking Lab](https://github.com/CS144/minnow)
 ==============================
 
@@ -18,11 +26,3 @@ To run speed benchmarks: `cmake --build build --target speed`
 To run clang-tidy (which suggests improvements): `cmake --build build --target tidy`
 
 To format code: `cmake --build build --target format`
-
-
-My Learning Process
-==============================
-
-- Finished lab 0
-- Finished lab 1
-- Finished lab 2
