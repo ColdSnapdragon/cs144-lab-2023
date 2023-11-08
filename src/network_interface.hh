@@ -11,6 +11,22 @@
 #include <unordered_map>
 #include <utility>
 
+struct PairHash {
+  template <typename T1, typename T2>
+  std::size_t operator()(const std::pair<T1, T2>& p) const {
+    auto h1 = std::hash<T1>{}(p.first);
+    auto h2 = std::hash<T2>{}(p.second);
+    return h1 ^ h2;
+  }
+};
+
+struct PairEqual {
+  template <typename T1, typename T2>
+  bool operator()(const std::pair<T1, T2>& p1, const std::pair<T1, T2>& p2) const {
+    return p1.first == p2.first && p1.second == p2.second;
+  }
+};
+
 // A "network interface" that connects IP (the internet layer, or network layer)
 // with Ethernet (the network access layer, or link layer).
 
@@ -36,10 +52,28 @@ class NetworkInterface
 {
 private:
   // Ethernet (known as hardware, network-access, or link-layer) address of the interface
-  EthernetAddress ethernet_address_;
+  EthernetAddress _ethernet_address;
 
   // IP (known as Internet-layer or network-layer) address of the interface
-  Address ip_address_;
+  Address _ip_address;
+
+  size_t _ms_in_total {0};
+  const size_t _arp_avoid_flood_time {5 * 1000}, _map_expire_time {30 * 1000};
+  std::queue<EthernetFrame> _to_send {};
+  std::unordered_map<uint32_t, std::pair<size_t, InternetDatagram>> _unkown_ipdgram_info {};
+  std::unordered_map<uint32_t, EthernetAddress> _ip_to_eth_map {};
+  std::unordered_map<std::pair<uint32_t, std::string>, uint32_t, PairHash, PairEqual> _map_set_time {};
+  std::queue<std::tuple<uint32_t, std::string, uint32_t>> _ip_eth_time_q {};
+
+  void update_ip_eth_map(uint32_t ip, EthernetAddress eth);
+  void resend_unknown_ip_dgram(const uint32_t ip, const EthernetAddress& eth);
+  
+  template<class T>
+  EthernetFrame construct_frame(const T& data, const EthernetAddress& eth_addr, uint16_t type) {
+    EthernetHeader eth_header {eth_addr, _ethernet_address, type};
+    std::vector<Buffer> eth_payload = serialize(data);
+    return {eth_header, eth_payload};
+  }
 
 public:
   // Construct a network interface with given Ethernet (network-access-layer) and IP (internet-layer)
@@ -63,5 +97,5 @@ public:
   std::optional<InternetDatagram> recv_frame( const EthernetFrame& frame );
 
   // Called periodically when time elapses
-  void tick( size_t ms_since_last_tick );
+  void tick( const size_t ms_since_last_tick );
 };

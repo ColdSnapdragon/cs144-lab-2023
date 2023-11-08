@@ -5,6 +5,7 @@ My Learning Process for CS 144 Lab 2023 Spring
 - Finished lab 1
 - Finished lab 2
 - Finished lab 3
+- Finished lab 4
 
 Fork from [Stanford CS 144 Networking Lab](https://github.com/CS144/minnow)
 ==============================
