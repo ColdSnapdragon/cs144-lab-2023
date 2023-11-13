@@ -48,12 +48,44 @@ public:
   }
 };
 
+
+struct node {
+  uint8_t _type;
+  size_t _child[2];
+  size_t _interfaces_id;
+  uint32_t _next_hop_ip;
+};
+
+class IPTrie {
+
+
+  std::vector<node> tree {};
+
+public:
+
+  static constexpr uint8_t NODETYPE_NOMAL = 0;
+  static constexpr uint8_t NODETYPE_LAST = 1;
+  static constexpr uint8_t NODETYPE_DIRECT = 2;
+  
+  IPTrie();
+
+  void add_route( uint32_t route_prefix,
+                  uint8_t prefix_length,
+                  std::optional<Address> next_hop,
+                  size_t interface_num);
+
+  std::optional<node> query(uint32_t ip);
+
+};
+
+
 // A router that has multiple network interfaces and
 // performs longest-prefix-match routing between them.
 class Router
 {
   // The router's collection of network interfaces
   std::vector<AsyncNetworkInterface> interfaces_ {};
+  IPTrie trie {};
 
 public:
   // Add an interface to the router
