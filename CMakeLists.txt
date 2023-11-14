@@ -24,3 +24,7 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/tests")
 add_subdirectory("${PROJECT_SOURCE_DIR}/apps")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# I add the following 2 lines to solve the pthread error on compilation
+find_package(Threads REQUIRED)
+target_link_libraries(util_debug Threads::Threads)
