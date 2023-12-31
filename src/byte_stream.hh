@@ -13,6 +13,12 @@ class ByteStream
 protected:
   uint64_t capacity_;
   // Please add any additional state to the ByteStream here, and not to the Writer and Reader interfaces.
+  bool closed_ = false;
+  bool error_ = false;
+  uint64_t size_ = 0;
+  uint64_t total_ = 0;
+  std::queue<std::string> stream = {};
+  std::string_view buffer = {};
 
 public:
   explicit ByteStream( uint64_t capacity );
@@ -51,7 +57,7 @@ public:
 };
 
 /*
- * read: A (provided) helper function thats peeks and pops up to `len` bytes
+ * read: A (provided) helper function thats peeks(查看) and pops up to `len` bytes
  * from a ByteStream Reader into a string;
  */
 void read( Reader& reader, uint64_t len, std::string& out );

@@ -2,10 +2,35 @@
 
 #include "byte_stream.hh"
 
+#include <iostream>
+#include <map>
 #include <string>
+
+#define inf UINT64_MAX
 
 class Reassembler
 {
+private:
+  class DataSeg
+  {
+  public:
+    uint64_t l;
+    uint64_t r;
+    bool operator<( const DataSeg& rhs ) const
+    {
+      if ( l == rhs.l ) {
+        return r < rhs.r;
+      }
+      if ( l == inf ) // 用于查找时
+        return r < rhs.r;
+      return l < rhs.l;
+    }
+  };
+  std::map<DataSeg, std::string> storage {};
+  uint64_t L = 0, R = 0; // [L,R)描述Reassembler的滑动窗口
+  uint64_t _end = inf;
+  uint64_t _pending = 0;
+
 public:
   /*
    * Insert a new substring to be reassembled into a ByteStream.
