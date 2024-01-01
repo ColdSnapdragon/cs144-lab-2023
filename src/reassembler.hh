@@ -18,9 +18,8 @@ private:
     uint64_t r;
     bool operator<( const DataSeg& rhs ) const
     {
-      if ( l == rhs.l ) {
+      if ( l == rhs.l )
         return r < rhs.r;
-      }
       if ( l == inf ) // 用于查找时
         return r < rhs.r;
       return l < rhs.l;
