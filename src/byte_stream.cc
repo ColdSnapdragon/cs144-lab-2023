@@ -76,6 +76,8 @@ bool Reader::has_error() const
 void Reader::pop( uint64_t len )
 {
   // Your code here.
+  if ( len == 0 )
+    return;
   while ( len >= buffer.size() ) {
     stream.pop();
     len -= buffer.size();

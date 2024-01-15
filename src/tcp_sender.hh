@@ -4,10 +4,26 @@
 #include "tcp_receiver_message.hh"
 #include "tcp_sender_message.hh"
 
+#include <list>
+#include <queue>
+
 class TCPSender
 {
   Wrap32 isn_;
   uint64_t initial_RTO_ms_;
+
+  bool _start = false;
+  Wrap32 seqno { 0 };
+  Wrap32 expect_ack { 0 };
+  uint64_t index { 0 };
+  uint64_t ack_index { 0 };
+  uint16_t rwindow { 0 };
+  uint64_t timer { 0 };
+  std::queue<TCPSenderMessage> toack_segments {};
+  std::queue<TCPSenderMessage> tosend_segments {};
+  uint64_t outstanding_bytes { 0 };
+  uint64_t l_index { 0 };
+  uint64_t r_index { 1 }; // message的最小长度为1(比如在第一次获取接收窗口大小前的SYN报文)
 
 public:
   /* Construct TCP sender with given default Retransmission Timeout and possible ISN */
