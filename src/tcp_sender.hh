@@ -12,18 +12,23 @@ class TCPSender
   Wrap32 isn_;
   uint64_t initial_RTO_ms_;
 
-  bool _start = false;
+  bool _start = false; // 是否已经发送SYN报文
+  bool _end = false;   // 是否已经发送FIN报文
   Wrap32 seqno { 0 };
   Wrap32 expect_ack { 0 };
   uint64_t index { 0 };
   uint64_t ack_index { 0 };
   uint16_t rwindow { 0 };
   uint64_t timer { 0 };
+  uint64_t rto { 0 };
+  bool zerowin = false;
   std::queue<TCPSenderMessage> toack_segments {};
   std::queue<TCPSenderMessage> tosend_segments {};
+  std::queue<TCPSenderMessage> resend_segments {};
   uint64_t outstanding_bytes { 0 };
   uint64_t l_index { 0 };
   uint64_t r_index { 1 }; // message的最小长度为1(比如在第一次获取接收窗口大小前的SYN报文)
+  uint64_t retransmissions { 0 };
 
 public:
   /* Construct TCP sender with given default Retransmission Timeout and possible ISN */
