@@ -41,25 +41,24 @@ optional<TCPSenderMessage> TCPSender::maybe_send()
 
 void TCPSender::push( Reader& outbound_stream )
 {
-  bool close = outbound_stream.is_finished();
-  string_view sv = outbound_stream.peek();
-  if ( sv.size() || !_start || close ) {
-    do {
-      uint16_t win = r_index - index; // 发送窗口的可用空间
-      uint16_t len
-        = min( win, (uint16_t)min( sv.size(), TCPConfig::MAX_PAYLOAD_SIZE ) ); // 最大为1000(和书上的1452不太合?)
-      if ( _end || ( _start && len == 0 && !close ) || win == 0 )
-        return;
-      string seg { sv.substr( 0, len ) };
-      outbound_stream.pop( len );
-      _end = ( close && win > len ); // 若无可用序列号，则FIN留到下个数据段再发送
-      TCPSenderMessage msg = TCPSenderMessage { Wrap32::wrap( index, isn_ ), !_start, seg, _end };
-      tosend_segments.push( msg );
-      index += msg.sequence_length();
-      sv.remove_prefix( len );
-      _start = true;
-    } while ( sv.size() );
-  }
+  if ( _end )
+    return;
+  string_view sv = outbound_stream.peek(); // 每写入一次数据就会随之调一次push函数
+  do {                                     // 当payload为空时，留机会给SYN和FIN发送
+    uint16_t win = r_index - index;        // 发送窗口的可用空间
+    uint16_t len                           // 数据段的payload长度
+      = min( win, (uint16_t)min( sv.size(), TCPConfig::MAX_PAYLOAD_SIZE ) ); // 最大为1000(和书上的1452不太合?)
+    string seg { sv.substr( 0, len ) };
+    outbound_stream.pop( len );
+    _end = ( outbound_stream.is_finished() && win > len ); // 若无可用序列号，则FIN留到窗口足够再发送
+    TCPSenderMessage msg = TCPSenderMessage { Wrap32::wrap( index, isn_ ), !_start, seg, _end };
+    if ( msg.sequence_length() == 0 )
+      return;
+    tosend_segments.push( msg );
+    index += msg.sequence_length();
+    sv.remove_prefix( len );
+    _start = true;
+  } while ( sv.size() );
 }
 
 TCPSenderMessage TCPSender::send_empty_message() const
